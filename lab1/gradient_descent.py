@@ -7,16 +7,17 @@ import matplotlib
 matplotlib.use('TkAgg')
 
 
-# Gradient descent algorithm
+# Gradient Descent Solver
 class GradientDescent(Solver):
-    def __init__(self):
-        pass
+    def __init__(self, function=None):
+        self.function = function
 
     def get_parameters(self):
-        pass
+        return self.function
 
-    def solve(self, function, x0, step_size, num_iterations):
-        grad = gradient(function)
+    # Find a path to minimum using gradient descent
+    def solve(self, x0, step_size, num_iterations):
+        grad = gradient(self.function)
         x = x0
         history = [x0]
         for i in range(num_iterations):
@@ -26,17 +27,9 @@ class GradientDescent(Solver):
         return np.array(history)
 
 
-gradient_descent = GradientDescent().solve
-
-
 # Function f(x)
 def f(x):
     return 0.5 * x**4 + x
-
-
-# Gradient of f(x)
-def grad_f(x):
-    return 2 * x**3 + 1
 
 
 # Function g(x1, x2)
@@ -47,24 +40,14 @@ def g(X):
     return 1 - 0.6 * term1 - 0.4 * term2
 
 
-# Gradient of g(x1, x2)
-def grad_g(x):
-    x1, x2 = x
-    term1 = np.exp(- (x1**2 + (x2 + 1)**2))
-    term2 = np.exp(- ((x1 - 1.75)**2 + (x2 + 2)**2))
-
-    grad_x1 = 1.2 * x1 * term1 + 0.8 * (x1 - 1.75) * term2
-    grad_x2 = 1.2 * (x2 + 1) * term1 + 0.8 * (x2 + 2) * term2
-    return np.array([grad_x1, grad_x2])
-
-
 # Plotting gradient descent for f(x)
 def plot_gradient_descent_f(x_init, step_size, num_iterations, show_plot=True, save_plot=True):
     # Real minimum of f(x)
     real_minimum = -1 / 2**(1/3)
 
     # Perform gradient descent
-    history_f = gradient_descent(f, x_init, step_size, num_iterations)
+    gradient_descent = GradientDescent(f)
+    history_f = gradient_descent.solve(x_init, step_size, num_iterations)
 
     # Create the plot
     x_vals = np.linspace(-10, 10, 400)
@@ -102,16 +85,16 @@ def plot_gradient_descent_f(x_init, step_size, num_iterations, show_plot=True, s
 # Plotting gradient descent for g(x) (2D)
 def plot_gradient_descent_g(x_init, step_size, num_iterations, show_plot=True, save_plot=True):
     # Perform gradient descent
-    history_g = gradient_descent(g, x_init, step_size, num_iterations)
+    gradient_descent = GradientDescent(g)
+    history_g = gradient_descent.solve(x_init, step_size, num_iterations)
 
-    # Create grid for contour plot
+    # Create the contour plot
     x1_vals = np.linspace(-2, 4, 400)
     x2_vals = np.linspace(-4, 4, 400)
     X1, X2 = np.meshgrid(x1_vals, x2_vals)
     Z = np.array([[g([x1, x2]) for x1, x2 in zip(row1, row2)]
                  for row1, row2 in zip(X1, X2)])
 
-    # Plotting the contour and the descent path
     plt.figure(figsize=(8, 6))
     plt.contour(X1, X2, Z, levels=50, cmap='viridis')
     history_g = np.array(history_g)
@@ -144,7 +127,8 @@ def plot_gradient_descent_g(x_init, step_size, num_iterations, show_plot=True, s
 # Plotting gradient descent for g(x) (3D)
 def plot_gradient_descent_g_3d(x_init, step_size, num_iterations, show_plot=True, save_plot=True):
     # Run gradient descent
-    history = gradient_descent(g, x_init, step_size, num_iterations)
+    gradient_descent = GradientDescent(g)
+    history = gradient_descent.solve(x_init, step_size, num_iterations)
 
     # Create the 3D plot
     x1_vals = np.linspace(-2, 2, 100)
@@ -185,7 +169,7 @@ def plot_gradient_descent_g_3d(x_init, step_size, num_iterations, show_plot=True
         plt.show()
 
 
-# Function to run the experiments for function f(x)
+# Run the experiments for function f(x)
 def experiment_f(step_sizes, x_initial_values, num_iterations):
     for x_init in x_initial_values:
         for step_size in step_sizes:
@@ -196,9 +180,8 @@ def experiment_f(step_sizes, x_initial_values, num_iterations):
                 plot_gradient_descent_f(
                     x_init, step_size, num_iter, show_plot=False, save_plot=True)
 
-# Function to run the experiments for function g(x1, x2)
 
-
+# Run the experiments for function g(x1, x2)
 def experiment_g(step_sizes, x_initial_values, num_iterations):
     for x_init in x_initial_values:
         for step_size in step_sizes:
@@ -230,10 +213,27 @@ def experiment_gradient_descent():
     experiment_g(step_sizes_g, x_initial_values_g, num_iterations)
 
 
+# Run the experiments
+experiment_gradient_descent()
+
+# Estimate minimum of f(x)
+gradient_descent = GradientDescent(f)
+history_f = gradient_descent.solve(2.0, 0.01, 500)
+x_minimum_f = history_f[-1]
+print("Real minimum of f(x): -0.5952753945 in -0.7937005259")
+print(f"Estimated minimum of f(x): {f(x_minimum_f)} in {x_minimum_f}")
+
+# Estimate minimum of g(x)
+gradient_descent = GradientDescent(g)
+history_g = gradient_descent.solve(np.array([-1.0, -3.0]), 1, 200)
+x_minimum_g = history_g[-1]
+print(f"Estimated minimum of g(x): {g(x_minimum_g)} in {x_minimum_g}")
+
+
 # # Draw gradient descent for f(x)
 # x_init_f = 2.0
 # step_size_f = 0.01
-# num_iterations_f = 20
+# num_iterations_f = 200
 # show_plot_f = True
 # save_plot_f = False
 # plot_gradient_descent_f(x_init_f, step_size_f,
@@ -242,12 +242,10 @@ def experiment_gradient_descent():
 # # Draw gradient descent for g(x)
 # x_init_g = np.array([-1.0, -3.0])
 # step_size_g = 1
-# num_iterations_g = 50
+# num_iterations_g = 200
 # show_plot_g = True
 # save_plot_g = True
 # plot_gradient_descent_g(x_init_g, step_size_g,
 #                         num_iterations_g, show_plot_g, save_plot_g)
 # plot_gradient_descent_g_3d(x_init_g, step_size_g,
 #                            num_iterations_g, show_plot_g, save_plot_g)
-
-experiment_gradient_descent()
