@@ -6,21 +6,34 @@ import matplotlib
 matplotlib.use('TkAgg')
 
 
-# Function f(x)
 def f(x):
+    """
+    One-dimensional function f(x).
+    """
     return 0.5 * x**4 + x
 
 
-# Function g(x1, x2)
 def g(X):
+    """
+    Two-dimensional function g(x1, x2).
+    """
     x1, x2 = X
     term1 = np.exp(- (x1**2 + (x2 + 1)**2))
     term2 = np.exp(- ((x1 - 1.75)**2 + (x2 + 2)**2))
     return 1 - 0.6 * term1 - 0.4 * term2
 
 
-# Plotting gradient descent for f(x)
 def plot_gradient_descent_f(x_init, step_size, num_iterations, show_plot=True, save_plot=True):
+    """
+    The function to plot the gradient descent for f(x).
+
+    Parameters:
+        x_init (float): the initial value
+        step_size (float): the step size
+        num_iterations (int): the number of iterations
+        show_plot (bool): whether to show the plot
+        save_plot (bool): whether to save the plot
+    """
     # Real minimum of f(x)
     real_minimum = -1 / 2**(1/3)
 
@@ -61,8 +74,17 @@ def plot_gradient_descent_f(x_init, step_size, num_iterations, show_plot=True, s
         plt.show()
 
 
-# Plotting gradient descent for g(x) (2D)
 def plot_gradient_descent_g(x_init, step_size, num_iterations, show_plot=True, save_plot=True):
+    """
+    The function to create 2D plot of gradient descent for g(x1, x2).
+
+    Parameters:
+        x_init (np.array): the initial value
+        step_size (float): the step size
+        num_iterations (int): the number of iterations
+        show_plot (bool): whether to show the plot
+        save_plot (bool): whether to save the plot
+    """
     # Perform gradient descent
     gradient_descent = GradientDescent(g)
     history_g = gradient_descent.solve(x_init, step_size, num_iterations)
@@ -103,8 +125,17 @@ def plot_gradient_descent_g(x_init, step_size, num_iterations, show_plot=True, s
         plt.show()
 
 
-# Plotting gradient descent for g(x) (3D)
 def plot_gradient_descent_g_3d(x_init, step_size, num_iterations, show_plot=True, save_plot=True):
+    """
+    The function to create 3D plot of gradient descent for g(x1, x2).
+
+    Parameters:
+        x_init (np.array): the initial value
+        step_size (float): the step size
+        num_iterations (int): the number of iterations
+        show_plot (bool): whether to show the plot
+        save_plot (bool): whether to save the plot
+    """
     # Run gradient descent
     gradient_descent = GradientDescent(g)
     history = gradient_descent.solve(x_init, step_size, num_iterations)
@@ -148,8 +179,15 @@ def plot_gradient_descent_g_3d(x_init, step_size, num_iterations, show_plot=True
         plt.show()
 
 
-# Run the experiments for function f(x)
 def experiment_f(step_sizes, x_initial_values, num_iterations):
+    """
+    The function to run the experiments for function f(x).
+
+    Parameters:
+        step_sizes (list): the list of step sizes
+        x_initial_values (list): the list of initial values
+        num_iterations (list): the list of numbers of iterations
+    """
     for x_init in x_initial_values:
         for step_size in step_sizes:
             for num_iter in num_iterations:
@@ -160,8 +198,15 @@ def experiment_f(step_sizes, x_initial_values, num_iterations):
                     x_init, step_size, num_iter, show_plot=False, save_plot=True)
 
 
-# Run the experiments for function g(x1, x2)
 def experiment_g(step_sizes, x_initial_values, num_iterations):
+    """
+    The function to run the experiments for function g(x1, x2).
+
+    Parameters:
+        step_sizes (list): the list of step sizes
+        x_initial_values (list): the list of initial values
+        num_iterations (list): the list of numbers of iterations
+    """
     for x_init in x_initial_values:
         for step_size in step_sizes:
             for num_iter in num_iterations:
@@ -175,6 +220,9 @@ def experiment_g(step_sizes, x_initial_values, num_iterations):
 
 
 def experiment_gradient_descent():
+    """
+    The function to run the experiments for gradient descent.
+    """
     step_sizes_f = [0.005, 0.01, 0.1]
     step_sizes_g = [0.1, 1, 5]
 
