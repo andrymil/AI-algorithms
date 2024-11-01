@@ -1,0 +1,49 @@
+# Ignoruj katalogi i pliki związane z wirtualnymi środowiskami
+venv/
+.env/
+env/
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+
+# Ignoruj pliki wygenerowane przez testy
+.tox/
+.coverage
+*.cover
+*.log
+nosetests.xml
+test-results/
+coverage.xml
+.cache/
+
+# Ignoruj pliki związane z konfiguracją edytorów/IDE
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.iml
+
+# Ignoruj pliki związane z systemami pakowania i budowania
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Ignoruj pliki wynikowe Pythona Cython/C extensions
+*.so
+*.dll
+
+# Ignoruj pliki konfiguracyjne systemu operacyjnego
+.DS_Store
+Thumbs.db
+
+# Ignoruj pliki związane z Dockerem (jeśli projekt używa Dockera)
+docker-compose.override.yml
+docker-compose.yml
+.docker/
+
+# Ignoruj pliki logów i inne tymczasowe
+*.log
+*.tmp
+*.swp
