@@ -76,23 +76,18 @@ class ID3(Solver):
         majority_class = np.bincount(y).argmax()
 
         if len(np.unique(y)) == 1 or (self.max_depth is not None and depth >= self.max_depth):
-            # If all examples have the same class or the maximum depth is reached, return the majority class
             return majority_class
-
-        # Find the best attribute to split
+        
         best_feature = np.argmax([self.information_gain(X, y, i) for i in range(X.shape[1])])
         tree = {best_feature: {"majority_class": majority_class, "branches": {}}}
-
-        # Iterate through all possible values of the feature
+        
         for value in range(int(np.max(X[:, best_feature])) + 1):
             subset_X = X[X[:, best_feature] == value]
             subset_y = y[X[:, best_feature] == value]
 
-            if len(subset_y) == 0:
-                # If no data, assign the majority class of the current node
+            if len(subset_y) == 0:                
                 tree[best_feature]["branches"][value] = majority_class
-            else:
-                # Recursively build the subtree
+            else:                
                 tree[best_feature]["branches"][value] = self.fit(subset_X, subset_y, depth + 1)
 
         return tree
@@ -109,7 +104,6 @@ class ID3(Solver):
             any: the predicted class
         """
         if not isinstance(tree, dict):
-             # If leaf node, return its value
             return tree
 
         feature = list(tree.keys())[0]
@@ -117,10 +111,8 @@ class ID3(Solver):
         value = x[feature]
 
         if value in node["branches"]:
-            # If the value exists, continue recursion
             return self.predict_one(x, node["branches"][value])
         else:
-            # If the value does not exist, return the majority class of the current node
             return node["majority_class"]
 
     def predict(self, X):

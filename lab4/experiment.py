@@ -138,18 +138,15 @@ def evaluate_training_set_size_effect(X, y, training_sizes, max_depth):
     plt.show()
 
 def main():
-    # Configurations
+    """Run the experiment."""
     file_path = 'cardio_train.csv'
     continuous_features = ['age', 'height', 'weight', 'ap_hi', 'ap_lo']
     max_depth_range = range(1, 11)
 
-    # Load and preprocess data
     X, y = load_and_preprocess_data(file_path, continuous_features)
 
-    # Split the data
     X_train, X_val, X_test, y_train, y_val, y_test = split_data(X, y)
 
-    # Convert to NumPy
     X_train_np = X_train.to_numpy()
     y_train_np = y_train.to_numpy()
     X_val_np = X_val.to_numpy()
@@ -157,24 +154,19 @@ def main():
     X_test_np = X_test.to_numpy()
     y_test_np = y_test.to_numpy()
 
-    # Find the best depth
     best_depth, best_accuracy, train_accuracies, val_accuracies = find_best_depth(
         X_train_np, y_train_np, X_val_np, y_val_np, max_depth_range
     )
     print(f"Best depth: {best_depth} with validation accuracy: {best_accuracy:.4f}")
 
-    # Plot accuracies
     plot_accuracies(train_accuracies, val_accuracies, max_depth_range)
 
-    # Evaluate on the test set
     test_accuracy = evaluate_on_test_set(X_train_np, y_train_np, X_test_np, y_test_np, best_depth)
     print(f"Test set accuracy: {test_accuracy:.4f}")
 
-    # Evaluate bins effect
     bin_sizes = range(2, 21)
     evaluate_bins_effect(file_path, continuous_features, bin_sizes, max_depth=best_depth)
 
-    # Evaluate training set size effect
     training_sizes = np.linspace(0.1, 0.9, 9)
     evaluate_training_set_size_effect(X, y, training_sizes, max_depth=best_depth)
 
