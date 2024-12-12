@@ -98,7 +98,6 @@ def evaluate_bins_effect(file_path, continuous_features, bin_sizes, max_depth):
         train_accuracies.append(train_accuracy)
         val_accuracies.append(val_accuracy)
 
-    # Plot the results
     plt.plot(bin_sizes, train_accuracies, label="Training set")
     plt.plot(bin_sizes, val_accuracies, label="Validation set")
     plt.xlabel("Number of bins (q)")
@@ -129,7 +128,6 @@ def evaluate_training_set_size_effect(X, y, training_sizes, max_depth):
         train_accuracies.append(train_accuracy)
         val_accuracies.append(val_accuracy)
 
-    # Plot the results
     plt.plot(training_sizes, train_accuracies, label="Training set")
     plt.plot(training_sizes, val_accuracies, label="Validation set")
     plt.xlabel("Training set size")
@@ -172,13 +170,13 @@ def main():
     test_accuracy = evaluate_on_test_set(X_train_np, y_train_np, X_test_np, y_test_np, best_depth)
     print(f"Test set accuracy: {test_accuracy:.4f}")
 
-    # Evaluate training set size effect
-    training_sizes = np.linspace(0.1, 0.9, 9)  # Sizes from 10% to 90% of the data
-    evaluate_training_set_size_effect(X, y, training_sizes, max_depth=best_depth)
-
     # Evaluate bins effect
-    bin_sizes = range(2, 21)  # Test different bin sizes (q)
+    bin_sizes = range(2, 21)
     evaluate_bins_effect(file_path, continuous_features, bin_sizes, max_depth=best_depth)
+
+    # Evaluate training set size effect
+    training_sizes = np.linspace(0.1, 0.9, 9)
+    evaluate_training_set_size_effect(X, y, training_sizes, max_depth=best_depth)
 
 if __name__ == "__main__":
     main()

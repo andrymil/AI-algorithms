@@ -73,25 +73,19 @@ class ID3(Solver):
         Returns:
             dict: the decision tree
         """
-        # Warunki stopu
         if len(np.unique(y)) == 1 or (self.max_depth is not None and depth >= self.max_depth):
-            # Zwróć klasę większościową jako wartość liścia
             return np.bincount(y).argmax()
 
-        # Znajdź najlepszy atrybut do podziału
         best_feature = np.argmax([self.information_gain(X, y, i) for i in range(X.shape[1])])
         tree = {best_feature: {}}
 
-        # Iteracja po wszystkich możliwych wartościach atrybutu
-        for value in range(int(np.max(X[:, best_feature])) + 1):  # Uwzględnia wszystkie możliwe wartości
+        for value in range(int(np.max(X[:, best_feature])) + 1):
             subset_X = X[X[:, best_feature] == value]
             subset_y = y[X[:, best_feature] == value]
 
             if len(subset_y) == 0:
-                # Jeśli brak przykładów, przypisz klasę większościową z bieżącego zbioru
                 tree[best_feature][value] = np.bincount(y).argmax()
             else:
-                # Rekurencyjnie buduj drzewo dla podzbioru
                 tree[best_feature][value] = self.fit(subset_X, subset_y, depth + 1)
 
         return tree
@@ -108,14 +102,12 @@ class ID3(Solver):
             any: the predicted class
         """
         if not isinstance(tree, dict):
-            # Wartość liścia (klasa większościowa)
             return tree
         feature = list(tree.keys())[0]
         value = x[feature]
         if value in tree[feature]:
             return self.predict_one(x, tree[feature][value])
         else:
-            # Jeśli wartość nie występuje w poddrzewie, zwróć klasę większościową na poziomie tego drzewa
             return max(tree[feature].values(), key=lambda v: v if not isinstance(v, dict) else -1)
 
     def predict(self, X):
