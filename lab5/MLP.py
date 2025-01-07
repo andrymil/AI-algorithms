@@ -95,7 +95,7 @@ class MLP:
 
             activations = self.forward(X)
             loss = self.loss_function(y, activations[-1])
-            print(f"Epoch {epoch + 1}/{epochs}, Loss: {loss:.4f}")
+            #print(f"Epoch {epoch + 1}/{epochs}, Loss: {loss:.4f}")
 
     def predict(self, X):
         activations = self.forward(X)
