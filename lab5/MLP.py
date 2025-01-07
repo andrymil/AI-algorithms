@@ -101,6 +101,7 @@ class MLP:
         activations = self.forward(X)
         return np.argmax(activations[-1], axis=1)
 
+"""
 # Load MNIST dataset
 digits = load_digits()
 X = digits.data
@@ -123,3 +124,4 @@ y_pred = mlp.predict(X_test)
 y_test_labels = np.argmax(y_test, axis=1)
 accuracy = accuracy_score(y_test_labels, y_pred)
 print(f"Test Accuracy: {accuracy:.4f}")
+"""

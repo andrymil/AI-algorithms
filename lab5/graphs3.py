@@ -1,0 +1,212 @@
+import numpy as np
+from sklearn.datasets import load_digits
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.metrics import accuracy_score
+from MLP import MLP, sigmoid, sigmoid_derivative, relu, relu_derivative, cross_entropy_loss, cross_entropy_loss_derivative
+from concurrent.futures import ProcessPoolExecutor
+import time
+import matplotlib.pyplot as plt
+
+digits = load_digits()
+X = digits.data
+y = digits.target
+
+# One-hot encode labels
+encoder = OneHotEncoder(sparse_output=False)
+y_onehot = encoder.fit_transform(y.reshape(-1, 1))
+
+# Split the data
+X_train, X_temp, y_train, y_temp = train_test_split(X, y_onehot, test_size=0.4, random_state=42)
+X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
+
+"""
+# Create and train MLP model
+mlp = MLP(layers=[64, 128, 64, 10], activation=(relu, relu_derivative), loss=(cross_entropy_loss, cross_entropy_loss_derivative), learning_rate=0.01)
+mlp.fit(X_train, y_train, epochs=100, batch_size=8)
+
+# Evaluate the model
+y_pred = mlp.predict(X_test)
+y_test_labels = np.argmax(y_test, axis=1)
+accuracy = accuracy_score(y_test_labels, y_pred)
+"""
+
+
+
+
+# Track accuracy over epochs
+
+def track_accuracy_over_epochs(sample_epochs = np.linspace(1, 100, 10, dtype=int), learning_rate=0.01, batch_size=8, layers=[64, 128, 64, 10]):
+    train_accuracies = []
+    val_accuracies = []
+    test_accuracies = []
+    
+    print("\n\nEpochs: ", sample_epochs)
+
+    for epoch in sample_epochs:
+        mlp = MLP(layers=layers, activation=(relu, relu_derivative), loss=(cross_entropy_loss, cross_entropy_loss_derivative), learning_rate=learning_rate)
+        mlp.fit(X_train, y_train, epoch, batch_size=batch_size)
+        train_pred = mlp.predict(X_train)
+        val_pred = mlp.predict(X_val)
+        train_accuracy = accuracy_score(np.argmax(y_train, axis=1), train_pred)
+        val_accuracy = accuracy_score(np.argmax(y_val, axis=1), val_pred)
+        test_accuracy = accuracy_score(np.argmax(y_test, axis=1), mlp.predict(X_test))
+        
+        train_accuracies.append(train_accuracy)
+        val_accuracies.append(val_accuracy)
+        test_accuracies.append(test_accuracy)
+        print(f"Epoch {epoch}, Train Accuracy: {train_accuracy:.4f}, Validation Accuracy: {val_accuracy:.4f}")
+
+    return sample_epochs, train_accuracies, val_accuracies, test_accuracies
+
+def plot_accuracy_over_epochs(sample_epochs, train_accuracies, val_accuracies, test_accuracies):
+    plt.plot(sample_epochs, train_accuracies, label='Train Accuracy')
+    plt.plot(sample_epochs, val_accuracies, label='Validation Accuracy')
+    plt.plot(sample_epochs, test_accuracies, label='Test Accuracy')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
+    plt.title('Accuracy vs Epochs')
+    plt.legend()
+    plt.show()
+
+def track_accuracy_over_learning_rate(sample_learning_rates=np.linspace(0.001, 0.01, 10), epochs=100, batch_size=8, layers=[64, 128, 64, 10], round_digits=4):
+    train_accuracies = []
+    val_accuracies = []
+    test_accuracies = []
+    
+    sample_learning_rates = np.round(sample_learning_rates, round_digits)
+    print("\n\nLearning Rates: ", sample_learning_rates)
+    
+    for learning_rate in sample_learning_rates:
+        mlp = MLP(layers=layers, activation=(relu, relu_derivative), loss=(cross_entropy_loss, cross_entropy_loss_derivative), learning_rate=learning_rate)
+        mlp.fit(X_train, y_train, epochs, batch_size=batch_size)
+        train_pred = mlp.predict(X_train)
+        val_pred = mlp.predict(X_val)
+        train_accuracy = accuracy_score(np.argmax(y_train, axis=1), train_pred)
+        val_accuracy = accuracy_score(np.argmax(y_val, axis=1), val_pred)
+        test_accuracy = accuracy_score(np.argmax(y_test, axis=1), mlp.predict(X_test))
+        
+        train_accuracies.append(train_accuracy)
+        val_accuracies.append(val_accuracy)
+        test_accuracies.append(test_accuracy)
+        print(f"Learning Rate {learning_rate}, Train Accuracy: {train_accuracy:.4f}, Validation Accuracy: {val_accuracy:.4f}")
+
+    return sample_learning_rates, train_accuracies, val_accuracies, test_accuracies
+
+def plot_accuracy_over_learning_rate(sample_learning_rates, train_accuracies, val_accuracies, test_accuracies):
+    plt.plot(sample_learning_rates, train_accuracies, label='Train Accuracy')
+    plt.plot(sample_learning_rates, val_accuracies, label='Validation Accuracy')
+    plt.plot(sample_learning_rates, test_accuracies, label='Test Accuracy')
+    plt.xlabel('Learning Rate')
+    plt.ylabel('Accuracy')
+    plt.title('Accuracy vs Learning Rate')
+    plt.legend()
+    plt.show()
+
+def track_accuracy_over_batch_size(sample_batch_sizes=np.linspace(1, 64, 10, dtype=int), epochs=100, learning_rate=0.01, layers=[64, 128, 64, 10]):
+    train_accuracies = []
+    val_accuracies = []
+    test_accuracies = []
+    
+    print("\n\nBatch Sizes: ", sample_batch_sizes)
+    
+    for batch_size in sample_batch_sizes:
+        mlp = MLP(layers=layers, activation=(relu, relu_derivative), loss=(cross_entropy_loss, cross_entropy_loss_derivative), learning_rate=learning_rate)
+        mlp.fit(X_train, y_train, epochs, batch_size=batch_size)
+        train_pred = mlp.predict(X_train)
+        val_pred = mlp.predict(X_val)
+        train_accuracy = accuracy_score(np.argmax(y_train, axis=1), train_pred)
+        val_accuracy = accuracy_score(np.argmax(y_val, axis=1), val_pred)
+        test_accuracy = accuracy_score(np.argmax(y_test, axis=1), mlp.predict(X_test))
+        
+        train_accuracies.append(train_accuracy)
+        val_accuracies.append(val_accuracy)
+        test_accuracies.append(test_accuracy)
+        print(f"Batch Size {batch_size}, Train Accuracy: {train_accuracy:.4f}, Validation Accuracy: {val_accuracy:.4f}")
+
+    return sample_batch_sizes, train_accuracies, val_accuracies, test_accuracies
+
+def plot_accuracy_over_batch_size(sample_batch_sizes, train_accuracies, val_accuracies, test_accuracies):
+    plt.plot(sample_batch_sizes, train_accuracies, label='Train Accuracy')
+    plt.plot(sample_batch_sizes, val_accuracies, label='Validation Accuracy')
+    plt.plot(sample_batch_sizes, test_accuracies, label='Test Accuracy')
+    plt.xlabel('Batch Size')
+    plt.ylabel('Accuracy')
+    plt.title('Accuracy vs Batch Size')
+    plt.legend()
+    plt.show()
+    
+def track_accuracy_over_layers(sample_layers=[[64, 128, 64, 10], [64, 128, 10], [64, 10]], epochs=100, learning_rate=0.01, batch_size=8):
+    train_accuracies = []
+    val_accuracies = []
+    test_accuracies = []
+    
+    print("\n\nLayers: ", sample_layers)
+    
+    for layers in sample_layers:
+        mlp = MLP(layers=layers, activation=(relu, relu_derivative), loss=(cross_entropy_loss, cross_entropy_loss_derivative), learning_rate=learning_rate)
+        mlp.fit(X_train, y_train, epochs, batch_size=batch_size)
+        train_pred = mlp.predict(X_train)
+        val_pred = mlp.predict(X_val)
+        train_accuracy = accuracy_score(np.argmax(y_train, axis=1), train_pred)
+        val_accuracy = accuracy_score(np.argmax(y_val, axis=1), val_pred)
+        test_accuracy = accuracy_score(np.argmax(y_test, axis=1), mlp.predict(X_test))
+        
+        train_accuracies.append(train_accuracy)
+        val_accuracies.append(val_accuracy)
+        test_accuracies.append(test_accuracy)
+        print(f"Layers {layers}, Train Accuracy: {train_accuracy:.4f}, Validation Accuracy: {val_accuracy:.4f}")
+
+    return sample_layers, train_accuracies, val_accuracies, test_accuracies
+
+def plot_accuracy_over_layers(sample_layers, train_accuracies, val_accuracies, test_accuracies):
+    plt.plot(sample_layers, train_accuracies, label='Train Accuracy')
+    plt.plot(sample_layers, val_accuracies, label='Validation Accuracy')
+    plt.plot(sample_layers, test_accuracies, label='Test Accuracy')
+    plt.xlabel('Layers')
+    plt.ylabel('Accuracy')
+    plt.title('Accuracy vs Layers')
+    plt.legend()
+    plt.show()
+
+
+
+#plot_accuracy_over_epochs(*track_accuracy_over_epochs(1, 100, 10))
+
+def parallel_track_accuracy_over_epochs(_):
+    return track_accuracy_over_epochs(1, 100, 10)
+
+def parallel_track_accuracy_over_epochs_with_boxplot(runs=3):
+    start_time = time.time()
+    
+    m_train_accuracies = []
+    m_val_accuracies = []
+    m_test_accuracies = []
+    
+    with ProcessPoolExecutor() as executor:
+        results = list(executor.map(parallel_track_accuracy_over_epochs, range(0, runs-1)))
+        
+    for sample_epochs, train_accuracies, val_accuracies, test_accuracies in results:
+        m_val_accuracies.append(val_accuracies)
+    
+    m_val_accuracies = np.array(m_val_accuracies).T.tolist()
+            
+    end_time = time.time()
+    print(f"Total time taken: {end_time - start_time:.2f} seconds")
+    
+    plt.boxplot(m_val_accuracies, positions=np.linspace(1, 100, 10, dtype=int), widths=0.5)
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
+    plt.title('Train Accuracy vs Epochs')
+    plt.show()
+
+if __name__ == '__main__':
+    plot_accuracy_over_epochs(*track_accuracy_over_epochs(1, 100, 10))
+    plot_accuracy_over_learning_rate(*track_accuracy_over_learning_rate(0.001, 0.01, 10))
+    plot_accuracy_over_batch_size(*track_accuracy_over_batch_size(8, 128, 10))
+    plot_accuracy_over_layers(*track_accuracy_over_layers([[64, 128, 64, 10], [64, 128, 10], [64, 10]]))
+    
+    #parallel_track_accuracy_over_epochs_with_boxplot(5)    
+    # report a message
+    print('Done.')
+
