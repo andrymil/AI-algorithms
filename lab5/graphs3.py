@@ -36,12 +36,12 @@ accuracy = accuracy_score(y_test_labels, y_pred)
 
 # Track accuracy over epochs
 
-def track_accuracy_over_epochs(sample_epochs = np.linspace(1, 100, 10, dtype=int), learning_rate=0.01, batch_size=8, layers=[64, 128, 64, 10]):
+def track_accuracy_over_epochs(sample_epochs=np.linspace(1, 100, 10, dtype=int), learning_rate=0.01, batch_size=8, layers=[64, 128, 64, 10]):
     train_accuracies = []
     val_accuracies = []
     test_accuracies = []
     
-    print("\n\nEpochs: ", sample_epochs)
+    #print("\n\nEpochs: ", sample_epochs)
 
     for epoch in sample_epochs:
         mlp = MLP(layers=layers, activation=(relu, relu_derivative), loss=(cross_entropy_loss, cross_entropy_loss_derivative), learning_rate=learning_rate)
@@ -55,7 +55,7 @@ def track_accuracy_over_epochs(sample_epochs = np.linspace(1, 100, 10, dtype=int
         train_accuracies.append(train_accuracy)
         val_accuracies.append(val_accuracy)
         test_accuracies.append(test_accuracy)
-        print(f"Epoch {epoch}, Train Accuracy: {train_accuracy:.4f}, Validation Accuracy: {val_accuracy:.4f}")
+        #print(f"Epoch {epoch}, Train Accuracy: {train_accuracy:.4f}, Validation Accuracy: {val_accuracy:.4f}")
 
     return sample_epochs, train_accuracies, val_accuracies, test_accuracies
 
@@ -75,7 +75,9 @@ def track_accuracy_over_learning_rate(sample_learning_rates=np.linspace(0.001, 0
     test_accuracies = []
     
     sample_learning_rates = np.round(sample_learning_rates, round_digits)
-    print("\n\nLearning Rates: ", sample_learning_rates)
+    if isinstance(sample_learning_rates, float):
+        sample_learning_rates = np.array([sample_learning_rates])
+    #print("\n\nLearning Rates: ", sample_learning_rates)
     
     for learning_rate in sample_learning_rates:
         mlp = MLP(layers=layers, activation=(relu, relu_derivative), loss=(cross_entropy_loss, cross_entropy_loss_derivative), learning_rate=learning_rate)
@@ -89,7 +91,7 @@ def track_accuracy_over_learning_rate(sample_learning_rates=np.linspace(0.001, 0
         train_accuracies.append(train_accuracy)
         val_accuracies.append(val_accuracy)
         test_accuracies.append(test_accuracy)
-        print(f"Learning Rate {learning_rate}, Train Accuracy: {train_accuracy:.4f}, Validation Accuracy: {val_accuracy:.4f}")
+        #print(f"Learning Rate {learning_rate}, Train Accuracy: {train_accuracy:.4f}, Validation Accuracy: {val_accuracy:.4f}")
 
     return sample_learning_rates, train_accuracies, val_accuracies, test_accuracies
 
@@ -98,6 +100,7 @@ def plot_accuracy_over_learning_rate(sample_learning_rates, train_accuracies, va
     plt.plot(sample_learning_rates, val_accuracies, label='Validation Accuracy')
     plt.plot(sample_learning_rates, test_accuracies, label='Test Accuracy')
     plt.xlabel('Learning Rate')
+    plt.xticks(np.linspace(min(sample_learning_rates), max(sample_learning_rates), num=20))
     plt.ylabel('Accuracy')
     plt.title('Accuracy vs Learning Rate')
     plt.legend()
@@ -160,9 +163,10 @@ def track_accuracy_over_layers(sample_layers=[[64, 128, 64, 10], [64, 128, 10], 
     return sample_layers, train_accuracies, val_accuracies, test_accuracies
 
 def plot_accuracy_over_layers(sample_layers, train_accuracies, val_accuracies, test_accuracies):
-    plt.plot(sample_layers, train_accuracies, label='Train Accuracy')
-    plt.plot(sample_layers, val_accuracies, label='Validation Accuracy')
-    plt.plot(sample_layers, test_accuracies, label='Test Accuracy')
+    sample_layers_str = [str(layers) for layers in sample_layers]
+    plt.plot(sample_layers_str, train_accuracies, label='Train Accuracy')
+    plt.plot(sample_layers_str, val_accuracies, label='Validation Accuracy')
+    plt.plot(sample_layers_str, test_accuracies, label='Test Accuracy')
     plt.xlabel('Layers')
     plt.ylabel('Accuracy')
     plt.title('Accuracy vs Layers')
@@ -199,14 +203,60 @@ def parallel_track_accuracy_over_epochs_with_boxplot(runs=3):
     plt.ylabel('Accuracy')
     plt.title('Train Accuracy vs Epochs')
     plt.show()
+    
+def parallel_track_accuracy_over_learning_rate_fix(sample):
+    return track_accuracy_over_learning_rate(sample)
+
+def parallel_track_accuracy_over_learning_rate():
+    m_sample_learning_rates = np.linspace(0.0001, 0.3, 100)
+    m_sample_learning_rates = np.round(m_sample_learning_rates, 5)
+    #samples = [(m_sample_learning_rates[i], m_sample_learning_rates[i + 1]) for i in range(0, len(m_sample_learning_rates), 2)]
+    m_train_accuracies = []
+    m_val_accuracies = []
+    m_test_accuracies = []
+    
+    with ProcessPoolExecutor() as executor:
+        results = list(executor.map(parallel_track_accuracy_over_learning_rate_fix, m_sample_learning_rates))
+        
+    for sample_learning_rates, train_accuracies, val_accuracies, test_accuracies in results:
+        for train_accuracy in train_accuracies:
+            m_train_accuracies.append(train_accuracy)
+        for val_accuracy in val_accuracies:
+            m_val_accuracies.append(val_accuracy)
+        for test_accuracy in test_accuracies:
+            m_test_accuracies.append(test_accuracy)
+        
+    return m_sample_learning_rates, m_train_accuracies, m_val_accuracies, m_test_accuracies
+        
 
 if __name__ == '__main__':
-    plot_accuracy_over_epochs(*track_accuracy_over_epochs(1, 100, 10))
-    plot_accuracy_over_learning_rate(*track_accuracy_over_learning_rate(0.001, 0.01, 10))
-    plot_accuracy_over_batch_size(*track_accuracy_over_batch_size(8, 128, 10))
-    plot_accuracy_over_layers(*track_accuracy_over_layers([[64, 128, 64, 10], [64, 128, 10], [64, 10]]))
+    # plot_accuracy_over_epochs(*track_accuracy_over_epochs(sample_epochs=np.linspace(1, 100, 10, dtype=int)))
+    # plot_accuracy_over_learning_rate(*track_accuracy_over_learning_rate(sample_learning_rates=np.linspace(0.001, 0.2, 100)))
+    plot_accuracy_over_learning_rate(*parallel_track_accuracy_over_learning_rate())
     
-    #parallel_track_accuracy_over_epochs_with_boxplot(5)    
-    # report a message
-    print('Done.')
+    
+    
+    # runs = 5
+    # all_train_accuracies = []
+    # all_val_accuracies = []
+    # all_test_accuracies = []
+
+    # for _ in range(runs):
+    #     sample_learning_rates, train_accuracies, val_accuracies, test_accuracies = parallel_track_accuracy_over_learning_rate()
+    #     all_train_accuracies.append(train_accuracies)
+    #     all_val_accuracies.append(val_accuracies)
+    #     all_test_accuracies.append(test_accuracies)
+
+    # median_train_accuracies = np.median(all_train_accuracies, axis=0)
+    # median_val_accuracies = np.median(all_val_accuracies, axis=0)
+    # median_test_accuracies = np.median(all_test_accuracies, axis=0)
+
+    # plot_accuracy_over_learning_rate(sample_learning_rates, median_train_accuracies, median_val_accuracies, median_test_accuracies)
+    
+    
+    
+    # plot_accuracy_over_batch_size(*track_accuracy_over_batch_size(sample_batch_sizes=np.linspace(1, 64, 10, dtype=int)))
+    # plot_accuracy_over_layers(*track_accuracy_over_layers([[64, 128, 64, 10], [64, 128, 10], [64, 1, 10]]))
+    
+    #parallel_track_accuracy_over_epochs_with_boxplot(5)
 
