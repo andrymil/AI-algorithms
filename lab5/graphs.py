@@ -9,28 +9,16 @@ import time
 from itertools import product
 import matplotlib.pyplot as plt
 
+
 digits = load_digits()
 X = digits.data
 y = digits.target
 
-# One-hot encode labels
 encoder = OneHotEncoder(sparse_output=False)
 y_onehot = encoder.fit_transform(y.reshape(-1, 1))
 
-# Split the data
 X_train, X_temp, y_train, y_temp = train_test_split(X, y_onehot, test_size=0.4, random_state=42)
 X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
-
-"""
-# Create and train MLP model
-mlp = MLP(layers=[64, 128, 64, 10], activation=(relu, relu_derivative), loss=(cross_entropy_loss, cross_entropy_loss_derivative), learning_rate=0.01)
-mlp.fit(X_train, y_train, epochs=100, batch_size=8)
-
-# Evaluate the model
-y_pred = mlp.predict(X_test)
-y_test_labels = np.argmax(y_test, axis=1)
-accuracy = accuracy_score(y_test_labels, y_pred)
-"""
 
 
 
@@ -202,8 +190,10 @@ def plot_accuracy_over_layers(sample_layers, train_accuracies, val_accuracies, t
     plt.show()
 
 
-## Testing
-#plot_accuracy_over_epochs(*track_accuracy_over_epochs(1, 100, 10))
+#############################################################################################################
+# Wielowątkowe
+#############################################################################################################
+
 
 def parallel_track_accuracy_over_epochs(_):
     return track_accuracy_over_epochs(1, 100, 10)
@@ -237,9 +227,7 @@ def parallel_track_accuracy_over_learning_rate_fix(sample):
 
 def parallel_track_accuracy_over_learning_rate(m_sample_learning_rates=np.linspace(0.0002, 0.3, 50)):
     
-    
     m_sample_learning_rates = np.round(m_sample_learning_rates, 5)
-    #samples = [(m_sample_learning_rates[i], m_sample_learning_rates[i + 1]) for i in range(0, len(m_sample_learning_rates), 2)]
     m_train_accuracies = []
     m_val_accuracies = []
     m_test_accuracies = []
@@ -261,8 +249,6 @@ def parallel_track_accuracy_over_epochs_fix(sample):
     return track_accuracy_over_epochs(sample)
 
 def parallel_track_accuracy_over_epochs(m_sample_epochs=np.linspace(1, 100, 10, dtype=int)):
-    
-    
     m_train_accuracies = []
     m_val_accuracies = []
     m_test_accuracies = []
@@ -356,22 +342,30 @@ def parallel_track_accuracy_over_layers_median(runs=10, m_sample_layers=[[64, 12
         
 
 if __name__ == '__main__':
+    
+    # większość funkcji da się wyabstaktować do jednej/kilku funkcji, ale dla wygody zapisywania parametrów wywołania, oraz wypisywania logów, zdecydowałem się na osobne funkcje
+    
     plot_accuracy_over_epochs(*track_accuracy_over_epochs(sample_epochs=np.linspace(1, 100, 10, dtype=int)))
     plot_accuracy_over_epochs(*parallel_track_accuracy_over_epochs(m_sample_epochs=np.linspace(1, 80, 40, dtype=int)))
     plot_accuracy_over_learning_rate(*track_accuracy_over_learning_rate(sample_learning_rates=np.linspace(0.001, 0.2, 100)))
-    plot_accuracy_over_learning_rate(*parallel_track_accuracy_over_learning_rate(m_sample_learning_rates=np.linspace(0.0001, 0.3, 100)))
-    #plot_accuracy_over_batch_size(*track_accuracy_over_batch_size(sample_batch_sizes=np.linspace(1, 64, 10, dtype=int)))
-    # plot_accuracy_over_layers(*track_accuracy_over_layers([[64, 128, 64, 10], [64, 128, 10], [64, 1, 10]]))
+    plot_accuracy_over_batch_size(*track_accuracy_over_batch_size(sample_batch_sizes=np.linspace(1, 64, 10, dtype=int)))
+    plot_accuracy_over_layers(*track_accuracy_over_layers([[64, 128, 64, 10], [64, 128, 10], [64, 1, 10]]))
+    
+    # # wielo wątkowe
+    
+    # plot_accuracy_over_learning_rate(*parallel_track_accuracy_over_learning_rate(m_sample_learning_rates=np.linspace(0.0001, 0.3, 100)))
+    # plot_accuracy_over_batch_size(*parallel_track_accuracy_over_batch_size(m_sample_batch_sizes=np.linspace(1, 64, 10, dtype=int)))
+    
+    # parallel_track_accuracy_over_layers_median(runs=5, m_sample_layers=[[64, 512, 10], [64, 8, 64, 10], [64, 16, 32, 10], [64, 16, 32, 10], [64, 32, 16, 10], [64, 64, 8, 10]])
+    # parallel_track_accuracy_over_layers_median(runs=5, m_sample_layers=sorted(generate_layer_configurations(2, 4, 16), key=lambda x: x[0] * x[1]))
+    
+    # funcja poniżej ma bardzo długie wykonanie, niezalecane do uruchamiania
+    # parallel_track_accuracy_over_layers_median(runs=3, m_sample_layers=generate_layer_configurations(2, 32, 256)[::32])
+
     
     
     
-    
-    
-    
-    
-    
-    
-    
+    """
     # runs = 10
     # all_train_accuracies = []
     # all_val_accuracies = []
@@ -388,36 +382,28 @@ if __name__ == '__main__':
     # median_test_accuracies = np.median(all_test_accuracies, axis=0)
 
     # plot_accuracy_over_epochs(sample_learning_rates, median_train_accuracies, median_val_accuracies, median_test_accuracies)
+    """
     
     
+    """
+    runs = 15
+    all_train_accuracies = []
+    all_val_accuracies = []
+    all_test_accuracies = []
     
-    #plot_accuracy_over_batch_size(*track_accuracy_over_batch_size(sample_batch_sizes=np.linspace(1, 64, 10, dtype=int)))
-    # plot_accuracy_over_batch_size(*parallel_track_accuracy_over_batch_size(m_sample_batch_sizes=np.linspace(1, 64, 10, dtype=int)))
-    
-    # runs = 15
-    # all_train_accuracies = []
-    # all_val_accuracies = []
-    # all_test_accuracies = []
-    
-    # for _ in range(runs):
-    #     sample_batch_sizes, train_accuracies, val_accuracies, test_accuracies = parallel_track_accuracy_over_batch_size(m_sample_batch_sizes=np.linspace(1, 64, 16, dtype=int))
-    #     all_train_accuracies.append(train_accuracies)
-    #     all_val_accuracies.append(val_accuracies)
-    #     all_test_accuracies.append(test_accuracies)
+    for _ in range(runs):
+        sample_batch_sizes, train_accuracies, val_accuracies, test_accuracies = parallel_track_accuracy_over_batch_size(m_sample_batch_sizes=np.linspace(1, 64, 16, dtype=int))
+        all_train_accuracies.append(train_accuracies)
+        all_val_accuracies.append(val_accuracies)
+        all_test_accuracies.append(test_accuracies)
         
-    # median_train_accuracies = np.median(all_train_accuracies, axis=0)
-    # median_val_accuracies = np.median(all_val_accuracies, axis=0)
-    # median_test_accuracies = np.median(all_test_accuracies, axis=0)
+    median_train_accuracies = np.average(all_train_accuracies, axis=0)
+    median_val_accuracies = np.average(all_val_accuracies, axis=0)
+    median_test_accuracies = np.average(all_test_accuracies, axis=0)
     
-    # plot_accuracy_over_batch_size(sample_batch_sizes, median_train_accuracies, median_val_accuracies, median_test_accuracies)
+    plot_accuracy_over_batch_size(sample_batch_sizes, median_train_accuracies, median_val_accuracies, median_test_accuracies)
+    """
     
-
-    
-    # plot_accuracy_over_layers(*track_accuracy_over_layers([[64, 128, 64, 10], [64, 128, 10], [64, 1, 10]]))
-    
-    #parallel_track_accuracy_over_layers_median(runs=5, m_sample_layers=[[64, 512, 10], [64, 8, 64, 10], [64, 16, 32, 10], [64, 16, 32, 10], [64, 32, 16, 10], [64, 64, 8, 10]])
-    #parallel_track_accuracy_over_layers_median(runs=3, m_sample_layers=generate_layer_configurations(2, 32, 256)[::32])
-    #parallel_track_accuracy_over_layers_median(runs=5, m_sample_layers=sorted(generate_layer_configurations(2, 4, 16), key=lambda x: x[0] * x[1]))
-    
+    # nie użyty wykres, za mała czytelnośćq
     #parallel_track_accuracy_over_epochs_with_boxplot(5)
 
