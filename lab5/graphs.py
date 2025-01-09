@@ -356,10 +356,19 @@ def parallel_track_accuracy_over_layers_median(runs=10, m_sample_layers=[[64, 12
         
 
 if __name__ == '__main__':
-    plot_accuracy_over_epochs(*track_accuracy_over_epochs(sample_epochs=np.linspace(1, 100, 10, dtype=int)))
-    plot_accuracy_over_epochs(*parallel_track_accuracy_over_epochs(m_sample_epochs=np.linspace(1, 80, 40, dtype=int)))
-    plot_accuracy_over_learning_rate(*track_accuracy_over_learning_rate(sample_learning_rates=np.linspace(0.001, 0.2, 100)))
-    plot_accuracy_over_learning_rate(*parallel_track_accuracy_over_learning_rate(m_sample_learning_rates=np.linspace(0.0001, 0.3, 100)))
+    print("Running")
+    # plot_accuracy_over_epochs(*track_accuracy_over_epochs(sample_epochs=np.linspace(1, 100, 10, dtype=int)))
+    # plot_accuracy_over_epochs(*parallel_track_accuracy_over_epochs(m_sample_epochs=np.linspace(1, 80, 40, dtype=int)))
+    #plot_accuracy_over_learning_rate(*track_accuracy_over_learning_rate(sample_learning_rates=np.linspace(0.001, 0.2, 40)))
+    #plot_accuracy_over_learning_rate(*parallel_track_accuracy_over_learning_rate(m_sample_learning_rates=np.linspace(0.0001, 0.3, 100)))
+    start_time = time.time()
+    track_accuracy_over_learning_rate(sample_learning_rates=np.linspace(0.0001, 0.3, 10))
+    end_time = time.time()
+    print(f"Total time taken(normal): {end_time - start_time:.2f} seconds")
+    start_time = time.time()
+    parallel_track_accuracy_over_learning_rate(m_sample_learning_rates=np.linspace(0.0001, 0.3, 10))
+    end_time = time.time()
+    print(f"Total time taken(parallel): {end_time - start_time:.2f} seconds")
     #plot_accuracy_over_batch_size(*track_accuracy_over_batch_size(sample_batch_sizes=np.linspace(1, 64, 10, dtype=int)))
     # plot_accuracy_over_layers(*track_accuracy_over_layers([[64, 128, 64, 10], [64, 128, 10], [64, 1, 10]]))
     
