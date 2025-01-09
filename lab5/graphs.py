@@ -351,7 +351,19 @@ if __name__ == '__main__':
     plot_accuracy_over_batch_size(*track_accuracy_over_batch_size(sample_batch_sizes=np.linspace(1, 64, 10, dtype=int)))
     plot_accuracy_over_layers(*track_accuracy_over_layers([[64, 128, 64, 10], [64, 128, 10], [64, 1, 10]]))
     
-    # # wielo wątkowe
+    # wielowątkowe vs normalne
+    """
+    start_time = time.time()
+    track_accuracy_over_learning_rate(sample_learning_rates=np.linspace(0.0001, 0.3, 10))
+    end_time = time.time()
+    print(f"Total time taken(normal): {end_time - start_time:.2f} seconds")
+    start_time = time.time()
+    parallel_track_accuracy_over_learning_rate(m_sample_learning_rates=np.linspace(0.0001, 0.3, 10))
+    end_time = time.time()
+    print(f"Total time taken(parallel): {end_time - start_time:.2f} seconds")
+    """
+    
+    # # wielowątkowe
     
     # plot_accuracy_over_learning_rate(*parallel_track_accuracy_over_learning_rate(m_sample_learning_rates=np.linspace(0.0001, 0.3, 100)))
     # plot_accuracy_over_batch_size(*parallel_track_accuracy_over_batch_size(m_sample_batch_sizes=np.linspace(1, 64, 10, dtype=int)))
